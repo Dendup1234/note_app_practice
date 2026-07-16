@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  username: MyString
+  email: MyString
+  password_digest: MyString
+  otp: MyString
+  otp_sent_at: 2026-07-16 12:38:29
+  expires_at: 2026-07-16 12:38:29
+
+two:
+  username: MyString
+  email: MyString
+  password_digest: MyString
+  otp: MyString
+  otp_sent_at: 2026-07-16 12:38:29
+  expires_at: 2026-07-16 12:38:29
