@@ -52,6 +52,8 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+  gem "rspec-rails"
+  gem "rswag-specs", "~> 2.17"
 end
 
 group :development do
@@ -73,3 +75,7 @@ gem "bcrypt", "~> 3.1"
 gem "jwt", "~> 3.2"
 
 gem "active_model_serializers", "~> 0.10.16"
+
+gem "rswag-api", "~> 2.17", require: "rswag/api"
+gem "rswag-ui", "~> 2.17", require: "rswag/ui"
+

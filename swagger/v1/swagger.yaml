@@ -1,0 +1,340 @@
+---
+openapi: 3.0.1
+info:
+  title: Note App API
+  version: v1
+paths:
+  "/login":
+    post:
+      summary: Logs in a user and returns a JWT
+      tags:
+      - Authentication
+      parameters: []
+      responses:
+        '200':
+          description: logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    "$ref": "#/components/schemas/user"
+                  token:
+                    type: string
+        '401':
+          description: invalid email or password
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dendup@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+              required:
+              - email
+              - password
+  "/password/forgot":
+    post:
+      summary: Sends a password reset OTP
+      tags:
+      - Password Reset
+      parameters: []
+      responses:
+        '200':
+          description: reset OTP sent if the email exists
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/message"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dendup@example.com
+              required:
+              - email
+  "/password/verify-otp":
+    post:
+      summary: Verifies reset OTP and returns a reset token
+      tags:
+      - Password Reset
+      parameters: []
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  reset_token:
+                    type: string
+        '422':
+          description: invalid or expired OTP
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dendup@example.com
+                otp:
+                  type: string
+                  example: '123456'
+              required:
+              - email
+              - otp
+  "/password/reset":
+    post:
+      summary: Resets password using reset token header
+      tags:
+      - Password Reset
+      security:
+      - reset_token: []
+      parameters:
+      - name: X-Reset-Token
+        in: header
+        required: true
+        description: Short-lived JWT returned by /password/verify-otp
+        schema:
+          type: string
+      responses:
+        '200':
+          description: password reset successful
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/message"
+        '401':
+          description: invalid reset token
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  format: password
+                  example: newpassword123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: newpassword123
+              required:
+              - password
+              - password_confirmation
+  "/users":
+    post:
+      summary: Starts signup and sends an OTP
+      tags:
+      - Signup
+      parameters: []
+      responses:
+        '201':
+          description: OTP sent to email
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/message"
+        '422':
+          description: email already registered
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: dendup
+                email:
+                  type: string
+                  format: email
+                  example: dendup@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: password123
+              required:
+              - username
+              - email
+              - password
+              - password_confirmation
+  "/signup/verify":
+    post:
+      summary: Verifies signup OTP and creates the real user
+      tags:
+      - Signup
+      parameters: []
+      responses:
+        '201':
+          description: signup completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    "$ref": "#/components/schemas/user"
+                  token:
+                    type: string
+                  message:
+                    type: string
+        '422':
+          description: invalid or expired OTP
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dendup@example.com
+                otp:
+                  type: string
+                  example: '123456'
+              required:
+              - email
+              - otp
+  "/signup/resend-otp":
+    post:
+      summary: Resends signup OTP
+      tags:
+      - Signup
+      parameters: []
+      responses:
+        '200':
+          description: OTP sent again
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/message"
+        '404':
+          description: pending signup not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dendup@example.com
+              required:
+              - email
+  "/me":
+    get:
+      summary: Returns the current authenticated user
+      tags:
+      - User
+      security:
+      - bearer_auth: []
+      responses:
+        '200':
+          description: current user
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/user"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+components:
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    reset_token:
+      type: apiKey
+      name: X-Reset-Token
+      in: header
+  schemas:
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        bio:
+          type: string
+          nullable: true
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+    validation_errors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    message:
+      type: object
+      properties:
+        message:
+          type: string
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
