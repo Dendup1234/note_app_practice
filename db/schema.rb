@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_16_074159) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_16_114753) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "notes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "note"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_notes_on_user_id"
+  end
 
   create_table "pending_signups", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -35,4 +44,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_16_074159) do
     t.datetime "updated_at", null: false
     t.string "username"
   end
+
+  add_foreign_key "notes", "users"
 end
