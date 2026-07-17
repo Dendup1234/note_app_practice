@@ -6,9 +6,11 @@ info:
 paths:
   "/login":
     post:
-      summary: Logs in a user and returns a JWT
+      summary: Logs in a user, returns a JWT, and sets the auth cookie
       tags:
       - Authentication
+      description: On success, the API also sets an HttpOnly signed auth_token cookie
+        that can authenticate later requests.
       parameters: []
       responses:
         '200':
@@ -45,6 +47,23 @@ paths:
               required:
               - email
               - password
+  "/logout":
+    delete:
+      summary: Clears the auth cookie
+      tags:
+      - Authentication
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      description: Clears the auth_token cookie on the client. This endpoint can be
+        called when the frontend wants to log out.
+      responses:
+        '200':
+          description: logged out
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/message"
   "/password/forgot":
     post:
       summary: Sends a password reset OTP
@@ -154,6 +173,164 @@ paths:
               required:
               - password
               - password_confirmation
+  "/note":
+    get:
+      summary: Lists notes for the authenticated user
+      tags:
+      - Notes
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      responses:
+        '200':
+          description: notes found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/note"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    post:
+      summary: Creates a note for the authenticated user
+      tags:
+      - Notes
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      parameters: []
+      responses:
+        '201':
+          description: note created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/note"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Meeting notes
+                note:
+                  type: string
+                  example: Discuss API documentation and note CRUD.
+              required:
+              - title
+              - note
+  "/note/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: Note ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Shows one note owned by the authenticated user
+      tags:
+      - Notes
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      responses:
+        '200':
+          description: note found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/note"
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    patch:
+      summary: Updates one note owned by the authenticated user
+      tags:
+      - Notes
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      parameters: []
+      responses:
+        '200':
+          description: note updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/note"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Updated title
+                note:
+                  type: string
+                  example: Updated note body.
+    put:
+      summary: Replaces one note owned by the authenticated user
+      tags:
+      - Notes
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      parameters: []
+      responses:
+        '200':
+          description: note replaced
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/note"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Replacement title
+                note:
+                  type: string
+                  example: Replacement note body.
+              required:
+              - title
+              - note
+    delete:
+      summary: Deletes one note owned by the authenticated user
+      tags:
+      - Notes
+      security:
+      - bearer_auth: []
+      - cookie_auth: []
+      responses:
+        '200':
+          description: note deleted
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/note"
   "/users":
     post:
       summary: Starts signup and sends an OTP
@@ -279,6 +456,7 @@ paths:
       - User
       security:
       - bearer_auth: []
+      - cookie_auth: []
       responses:
         '200':
           description: current user
@@ -298,6 +476,10 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    cookie_auth:
+      type: apiKey
+      name: auth_token
+      in: cookie
     reset_token:
       type: apiKey
       name: X-Reset-Token
@@ -316,6 +498,23 @@ components:
         bio:
           type: string
           nullable: true
+    note:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        note:
+          type: string
+        user_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     error:
       type: object
       properties:

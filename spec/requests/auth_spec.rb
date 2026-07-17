@@ -9,10 +9,11 @@ RSpec.describe "Authentication API", type: :request do
   end
 
   path "/login" do
-    post "Logs in a user and returns a JWT" do
+    post "Logs in a user, returns a JWT, and sets the auth cookie" do
       tags "Authentication"
       consumes "application/json"
       produces "application/json"
+      description "On success, the API also sets an HttpOnly signed auth_token cookie that can authenticate later requests."
 
       parameter name: :credentials, in: :body, schema: {
         type: :object,
@@ -48,6 +49,21 @@ RSpec.describe "Authentication API", type: :request do
         schema "$ref" => "#/components/schemas/error"
 
         let(:credentials) { { email: "missing@example.com", password: "wrong" } }
+
+        run_test!
+      end
+    end
+  end
+
+  path "/logout" do
+    delete "Clears the auth cookie" do
+      tags "Authentication"
+      produces "application/json"
+      security [ { bearer_auth: [] }, { cookie_auth: [] } ]
+      description "Clears the auth_token cookie on the client. This endpoint can be called when the frontend wants to log out."
+
+      response "200", "logged out" do
+        schema "$ref" => "#/components/schemas/message"
 
         run_test!
       end

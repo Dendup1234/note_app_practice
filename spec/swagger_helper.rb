@@ -29,6 +29,11 @@ RSpec.configure do |config|
             scheme: :bearer,
             bearerFormat: :JWT
           },
+          cookie_auth: {
+            type: :apiKey,
+            name: 'auth_token',
+            in: :cookie
+          },
           reset_token: {
             type: :apiKey,
             name: 'X-Reset-Token',
@@ -43,6 +48,17 @@ RSpec.configure do |config|
               username: { type: :string },
               email: { type: :string, format: :email },
               bio: { type: :string, nullable: true }
+            }
+          },
+          note: {
+            type: :object,
+            properties: {
+              id: { type: :integer },
+              title: { type: :string },
+              note: { type: :string },
+              user_id: { type: :integer },
+              created_at: { type: :string, format: "date-time" },
+              updated_at: { type: :string, format: "date-time" }
             }
           },
           error: {

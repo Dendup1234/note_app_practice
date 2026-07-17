@@ -74,6 +74,15 @@ end
     if user&.authenticate(params[:password])
     token = JsonWebToken.encode(user_id: user.id)
 
+    # Creates a cookie
+    cookies.signed[:auth_token] = {
+      value: token,
+      httponly: true,
+      secure: Rails.env.production?,
+      same_site: :lax,
+      expires: 24.hours.from_now
+    }
+
     render json: {
       user: UserSerializer.new(user),
       token: token
@@ -81,5 +90,10 @@ end
     else
     render json: { error: "Invalid email or password" }, status: :unauthorized
     end
+  end
+
+  def logout
+    cookies.delete(:auth_token)
+    render json: { message: "Logged out successfully" }, status: :ok
   end
 end

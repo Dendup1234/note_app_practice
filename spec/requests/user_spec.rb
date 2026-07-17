@@ -168,7 +168,7 @@ RSpec.describe "Signup and User API", type: :request do
     get "Returns the current authenticated user" do
       tags "User"
       produces "application/json"
-      security [ bearer_auth: [] ]
+      security [ { bearer_auth: [] }, { cookie_auth: [] } ]
 
       response "200", "current user" do
         schema "$ref" => "#/components/schemas/user"

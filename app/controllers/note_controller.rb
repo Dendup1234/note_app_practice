@@ -15,7 +15,7 @@ class NoteController < ApplicationController
     if note.save
       render json: note, status: :created
     else
-      render json:{error:note.errors.full_messages},status: :unprocessable_entity
+      render json: { error: note.errors.full_messages }, status: :unprocessable_entity
     end
   end
   # Updating the note
@@ -24,7 +24,7 @@ class NoteController < ApplicationController
     if note.update(note_params)
       render json: note, status: :ok
     else
-      render json: {error: note.errors.full_messages},status: :unprocessable_entity
+      render json: { error: note.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -34,12 +34,12 @@ class NoteController < ApplicationController
     if note.destroy
       render json: note, status: :ok
     else
-      render json: {error: note.errors.full_messages},status: :unprocessable_entity
+      render json: { error: note.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   private
   def note_params
-    params.permit(:title,:note)
+    params.permit(:title, :note)
   end
 end

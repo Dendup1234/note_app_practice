@@ -6,7 +6,10 @@ class ApplicationController < ActionController::Base
   # Checking the authenticated user's token
   def authenticate_user
     header  = request.headers["Authorization"]
-    token   = header&.split(" ")&.last
+    cookie_token = cookies.signed[:auth_token]
+    bearer_token = header&.split(" ")&.last
+
+    token = bearer_token || cookie_token
     payload = JsonWebToken.decode(token)
 
     @current_user = User.find_by(id: payload["user_id"]) if payload

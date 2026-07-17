@@ -79,3 +79,5 @@ gem "active_model_serializers", "~> 0.10.16"
 gem "rswag-api", "~> 2.17", require: "rswag/api"
 gem "rswag-ui", "~> 2.17", require: "rswag/ui"
 
+
+gem "rack-cors", "~> 3.0"
