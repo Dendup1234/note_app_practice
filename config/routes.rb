@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   post "/password/reset", to: "auth#reset_password"
   post "/login", to: "auth#login"
 
-  # Notes crud
+  # Notes cruds
   resources :note
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
