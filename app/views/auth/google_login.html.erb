@@ -1,0 +1,5 @@
+<h1>Login with Google</h1>
+
+<%= form_tag "/auth/google_oauth2", method: :post, data: { turbo: false } do %>
+  <%= submit_tag "Continue with Google" %>
+<% end %>

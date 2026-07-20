@@ -18,6 +18,12 @@ Rails.application.routes.draw do
   post "/login", to: "auth#login"
   delete "/logout", to: "auth#logout"
 
+  # Google oauth
+  get "/auth/:provider/callback", to: "auth#omniauth"
+  post "/auth/:provider/callback", to: "auth#omniauth"
+  get "/auth/failure", to: "auth#omniauth_failure"
+  get "/login/google", to: "auth#google_login"
+
   # Notes cruds
   resources :note
 

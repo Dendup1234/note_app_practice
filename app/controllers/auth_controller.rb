@@ -96,4 +96,55 @@ end
     cookies.delete(:auth_token)
     render json: { message: "Logged out successfully" }, status: :ok
   end
+
+# app/controllers/auth_controller.rb
+
+def omniauth
+  auth = request.env["omniauth.auth"]
+
+  user = User.find_by(provider: auth.provider, uid: auth.uid)
+
+  unless user
+    user = User.find_by(email: auth.info.email)
+
+    if user
+      user.update!(provider: auth.provider, uid: auth.uid)
+    else
+      password = SecureRandom.hex(20)
+
+      user = User.create!(
+        provider: auth.provider,
+        uid: auth.uid,
+        email: auth.info.email,
+        username: auth.info.name || auth.info.email.split("@").first,
+        password: password,
+        password_confirmation: password
+      )
+    end
+  end
+
+  token = JsonWebToken.encode(user_id: user.id)
+
+  cookies.signed[:auth_token] = {
+    value: token,
+    httponly: true,
+    secure: Rails.env.production?,
+    same_site: :lax,
+    expires: 24.hours.from_now
+  }
+
+  render json: {
+    user: UserSerializer.new(user),
+    token: token,
+    message: "Google login successful"
+  }, status: :ok
+end
+
+# Failure omniauth
+def omniauth_failure
+  render json: { error: "Google authentication failed" }, status: :unauthorized
+end
+
+def google_login
+end
 end

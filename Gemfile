@@ -54,6 +54,9 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem "rspec-rails"
   gem "rswag-specs", "~> 2.17"
+  gem "omniauth"
+  gem "omniauth-google-oauth2"
+  gem "omniauth-rails_csrf_protection"
 end
 
 group :development do
@@ -81,3 +84,5 @@ gem "rswag-ui", "~> 2.17", require: "rswag/ui"
 
 
 gem "rack-cors", "~> 3.0"
+
+gem "azure-blob", require: false
